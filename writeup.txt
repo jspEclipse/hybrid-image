@@ -1,0 +1,67 @@
+Overview:
+  My hybrid-image program contains two alignment methods. Each of which are vastly different
+  from one another.
+
+  Harris Corner Detection + Brute Force Matcher:
+    I decided for one of my alignment algorithms I wanted to try and mostly utilize opencv's libraries to see what
+    the results to be. Firstly, I got the resulting images of applying the Harris Corner Detection algorithm that
+    was provided by opencv. Then using those images, I created image descriptors using the opencv's ORB algorithm
+    and was able to match those key points to the images provided. I then averaged the distance between all of the
+    matching key points to find how much to move the high pass image
+
+  Middle-out Alignment Algorithm:
+    The name is a reference to a fictional algorithm in Silicon Valley(the tv show). The algorithm itself, however,
+    was thought of by me when experimenting with high-pass filters. I was experimenting with different high_pass algorithms
+    to see which one I liked, however, I came across one that seemed to keep a lot of facial features with minimal noise and had binary values(hi, lo).
+    At the time, I thought that this filter could be helpful for creating an algorithm and after thinking about it for a while
+    this is what I came up with. 
+
+    Finding x coordinate
+    The basis of the algorithm works because human facial features are generally vertically symmetrical. If we choose the correct x coordinate
+    to represent the middle of the face then we can line up the two images with each other using translation. This algorithm tries to
+    find the correct x by doing the following: First, we iterate through all the potential x candidates; for each x candidate, we have
+    two pointers iterate outwards together to try and see whether both pointers are pointing to a facial feature(hi); if it is, then we 
+    increment our hit variable and we choose the x candidate with the most hits.
+
+    Finding y coordinate
+    Finding the y coordinate is harder because the human face is not horizontally symmetrical. I initially thought that I would only translate by x
+    but after thinking for a while, I thought of this approach. After finding our x coordinate we should also have an array that is populated while
+    the program is trying to find the middle x coordinate. This array counts the frequency of hits for every y coordinate.
+
+    The rationale behind this is that the eyes and the mouth(intensity of hits around mouth is really variable because the filter works very differently depending
+    on how you're smiling) is going to have a lot of hits. If we are able to consistently find these peaks then we can find a y coordinate using some arbitrary algorithm
+    and line the pictures vertically
+
+    From here how we compute the y coordinate can go a lot of different ways I decided with the following but I believe that a better algorithm definitely exists but
+    due to time constraints was not implemented. I decided to line the images up vertically based on the largest island of hits in the y frequency.
+    The rationale behind this choice was the following: implementation is incredibly easy and I think that a spread out number of low hits in the array is more indicative
+    of a facial feature than just one intense value(although this may be wrong). The goal of this being, to find the eyes, I decided to not go with an algorithm that dealt with 
+    the mouth because there was a lot of variation in the filter with how the mouth came out.
+
+    Possible alternative y coordinate algorithms I thought of:
+      Choose two peaks(mouth and eyes) and return its average y coordinate
+
+      Original algorithm but we see where the hits are concentrated along
+      the x. If the hits are concentrated in the middle then more than likely
+      the y we are on is the mouth, if it's not concentrated in the middle then
+      we are likely on the eyes. (I might actually implement this one later)
+
+Hybrid Parameters:
+  Most of these parameters were chosen through just whatever looked best for me at the time, or were the same parameters that were given to me through online documentation.
+  One parameter I believe is incredibly important is the sigma for my middle out algorithm. This yields really different results when raised higher and creates a lot of noise
+  which completely throws off the algorithm. Three, I believe, is the sweet spot for isolating the facial features needed for my algorithm.
+
+Alignment Comparison:
+  Unsurprisingly, the algorithm that heavily utilizes opencv's library beats my middle out algorithm in many of the tests I conducted. One huge reason for this is because of
+  images with a smile with a lot of teeth and I believe eyebrows. This creates a huge island of hi values and is mistaken for eyes. If the other image isn't smiling big enough then the eyes are aligned
+  to the mouth, which is not ideal. Hopefully the alternative algorithms that I mentioned above fixes this issue. Another problem I believe might be the eyebrows but I am not 100% sure and
+  didn't do thorough testing on because it is close the eyes.
+
+  However, in a lot cases the algorithm works surprisingly well and is comparable to the result of the opencv algorithm in finding the correct x which I am very happy with, since that's 
+  what my algorithm was fundamentally about. I would say that the biggest system change I had to implement was trying to find a way to align the y coordinate in the first place using 
+  only vertical symmetry because originally I had planned to only translate by x.
+  example of my algorithm actually performing better are these inputs: ./dataset/aligned/face_0005.png ./dataset/large/face_0006
+
+AI Declaration:
+  The extent of my use of AI is accidentally finding useful syntax using Google's AI Overview, which I would've likely just found in the documentation anyways. Otherwise, I did not use
+  AI of any kind
