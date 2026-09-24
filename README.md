@@ -1,9 +1,9 @@
 Setup:
-  # Create virtual env
+  1.Create virtual env
   python -m venv .venv
-  # activate virtual environment
+  2.activate virtual environment
   source ./bin/activate
-  # install dependencies
+  3.install dependencies
   pip install
   ./run + args
 
